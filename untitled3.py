@@ -13,76 +13,63 @@ import matplotlib.pyplot as plt
 import pandas as pd
 
 # Page configuration
-
 st.set_page_config(page_title="Beam Moment Calculator", page_icon="📐", layout="wide")
 
 # Title and description
-
-st.title("📐 Simply Supported Beam - UDL Moment Calculator")
+st.title("Simply Supported Beam - UDL Moment Calculator")
 
 st.info("""
-**Simply Supported Beam with Uniformly Distributed Load (UDL)**
-
+Simply Supported Beam with Uniformly Distributed Load (UDL)
 - Maximum moment occurs at midspan: M_max = wL²/8
 - Reactions at supports: R = wL/2
-  """)
+""")
 
 # Sidebar for inputs
-
 st.sidebar.header("Input Parameters")
 
 # Unit system selection
-
 units = st.sidebar.selectbox(
-"Unit System",
-["Metric (kN, m)", "Imperial (kip, ft)"]
+    "Unit System",
+    ["Metric (kN, m)", "Imperial (kip, ft)"]
 )
 
 is_metric = "Metric" in units
 length_unit = "m" if is_metric else "ft"
 force_unit = "kN/m" if is_metric else "kip/ft"
-moment_unit = "kN⋅m" if is_metric else "kip⋅ft"
+moment_unit = "kN-m" if is_metric else "kip-ft"
 reaction_unit = "kN" if is_metric else "kip"
 
 # Input parameters
-
 length = st.sidebar.number_input(
-f"Beam Length (L) [{length_unit}]",
-min_value=0.1,
-value=10.0,
-step=0.5,
-format="%.2f"
+    f"Beam Length (L) [{length_unit}]",
+    min_value=0.1,
+    value=10.0,
+    step=0.5,
+    format="%.2f"
 )
 
 udl = st.sidebar.number_input(
-f"UDL Intensity (w) [{force_unit}]",
-min_value=0.0,
-value=5.0,
-step=0.5,
-format="%.2f"
+    f"UDL Intensity (w) [{force_unit}]",
+    min_value=0.0,
+    value=5.0,
+    step=0.5,
+    format="%.2f"
 )
 
 # Calculations
-
 # Maximum moment at midspan: M_max = wL²/8
-
 max_moment = (udl * length**2) / 8
 
 # Support reactions: R = wL/2
-
 reaction = (udl * length) / 2
 
 # Generate moment diagram data
-
 num_points = 100
 x = np.linspace(0, length, num_points)
-
 # Moment at distance x: M(x) = (wL/2)*x - w*x²/2
-
 moment = (reaction * x) - (udl * x**2) / 2
 
 # Create two columns for results
-
 col1, col2 = st.columns(2)
 
 with col1:
@@ -100,7 +87,6 @@ with col2:
     )
 
 # Beam diagram
-
 st.subheader("Beam Configuration")
 
 fig_beam, ax_beam = plt.subplots(figsize=(12, 3))
@@ -109,13 +95,11 @@ ax_beam.set_ylim(-1, 2)
 ax_beam.axis('off')
 
 # Draw beam
-
 beam_height = 0.2
 ax_beam.add_patch(plt.Rectangle((0, 0), length, beam_height,
-                               facecolor='gray', edgecolor='black', linewidth=2))
+                                 facecolor='gray', edgecolor='black', linewidth=2))
 
 # Draw UDL arrows
-
 num_arrows = 20
 for i in range(num_arrows + 1):
     x_arrow = i * length / num_arrows
@@ -123,56 +107,48 @@ for i in range(num_arrows + 1):
                   fc='red', ec='red', linewidth=1.5)
 
 # UDL label
-
 ax_beam.text(length/2, 1.7, f'w = {udl} {force_unit}',
-            ha='center', fontsize=11, fontweight='bold', color='red')
+             ha='center', fontsize=11, fontweight='bold', color='red')
 
 # Left support (pin)
-
 ax_beam.plot(0, 0, 'o', markersize=12, color='black', markerfacecolor='white',
-            markeredgewidth=2)
+             markeredgewidth=2)
 triangle_left = plt.Polygon([[0, -0.3], [-0.3, -0.7], [0.3, -0.7]],
                             facecolor='black')
 ax_beam.add_patch(triangle_left)
 
 # Right support (roller)
-
 ax_beam.plot(length, 0, 'o', markersize=12, color='black',
-            markerfacecolor='white', markeredgewidth=2)
+             markerfacecolor='white', markeredgewidth=2)
 triangle_right = plt.Polygon([[length, -0.3], [length-0.3, -0.7], [length+0.3, -0.7]],
                              facecolor='black')
 ax_beam.add_patch(triangle_right)
-
 # Roller wheels
-
 ax_beam.plot(length-0.15, -0.75, 'o', markersize=6, color='black')
 ax_beam.plot(length+0.15, -0.75, 'o', markersize=6, color='black')
 
 # Reaction arrows
-
 ax_beam.arrow(0, -0.9, 0, 0.5, head_width=0.15, head_length=0.1,
               fc='green', ec='green', linewidth=2)
 ax_beam.text(0, -1.1, f'R = {reaction:.2f} {reaction_unit}',
-            ha='center', fontsize=10, fontweight='bold', color='green')
+             ha='center', fontsize=10, fontweight='bold', color='green')
 
 ax_beam.arrow(length, -0.9, 0, 0.5, head_width=0.15, head_length=0.1,
               fc='green', ec='green', linewidth=2)
 ax_beam.text(length, -1.1, f'R = {reaction:.2f} {reaction_unit}',
-            ha='center', fontsize=10, fontweight='bold', color='green')
+             ha='center', fontsize=10, fontweight='bold', color='green')
 
 # Length dimension
-
 ax_beam.plot([0, length], [-0.5, -0.5], 'k-', linewidth=1)
 ax_beam.plot([0, 0], [-0.55, -0.45], 'k-', linewidth=1)
 ax_beam.plot([length, length], [-0.55, -0.45], 'k-', linewidth=1)
 ax_beam.text(length/2, -0.5, f'L = {length} {length_unit}',
-            ha='center', va='bottom', fontsize=10, fontweight='bold')
+             ha='center', va='bottom', fontsize=10, fontweight='bold')
 
 st.pyplot(fig_beam)
 plt.close()
 
 # Bending moment diagram
-
 st.subheader("Bending Moment Diagram")
 
 fig_moment, ax_moment = plt.subplots(figsize=(12, 5))
@@ -185,61 +161,55 @@ ax_moment.set_ylabel(f'Bending Moment ({moment_unit})', fontsize=11, fontweight=
 ax_moment.legend(fontsize=10)
 
 # Mark maximum moment
-
 max_moment_x = length / 2
 ax_moment.plot(max_moment_x, max_moment, 'ro', markersize=10,
-              label=f'M_max = {max_moment:.2f} {moment_unit}')
+               label=f'M_max = {max_moment:.2f} {moment_unit}')
 ax_moment.annotate(f'M_max = {max_moment:.2f}\n(at x = {max_moment_x:.2f} {length_unit})',
-                    xy=(max_moment_x, max_moment),
-                    xytext=(max_moment_x, max_moment * 1.15),
-                    ha='center', fontsize=9, fontweight='bold',
-                    bbox=dict(boxstyle='round,pad=0.5', facecolor='yellow', alpha=0.7),
-                    arrowprops=dict(arrowstyle='->', color='red', lw=1.5))
+                   xy=(max_moment_x, max_moment),
+                   xytext=(max_moment_x, max_moment * 1.15),
+                   ha='center', fontsize=9, fontweight='bold',
+                   bbox=dict(boxstyle='round,pad=0.5', facecolor='yellow', alpha=0.7),
+                   arrowprops=dict(arrowstyle='->', color='red', lw=1.5))
 
 st.pyplot(fig_moment)
 plt.close()
 
 # Data table
-
 st.subheader("Moment Values Along Beam")
 
 # Create dataframe with key points
-
 table_points = np.linspace(0, length, 11)
 table_moments = (reaction * table_points) - (udl * table_points**2) / 2
 
 df = pd.DataFrame({
-f'Position ({length_unit})': table_points,
-f'Moment ({moment_unit})': table_moments
+    f'Position ({length_unit})': table_points,
+    f'Moment ({moment_unit})': table_moments
 })
 
 st.dataframe(df.style.format({
-f'Position ({length_unit})': '{:.2f}',
-f'Moment ({moment_unit})': '{:.2f}'
+    f'Position ({length_unit})': '{:.2f}',
+    f'Moment ({moment_unit})': '{:.2f}'
 }), use_container_width=True)
 
 # Formula reference
-
 st.subheader("Formula Reference")
 
 st.markdown("""
-**For a simply supported beam with uniformly distributed load:**
+For a simply supported beam with uniformly distributed load:
 
-- **Maximum Moment:** M_max = wL² / 8 (at x = L/2)
-- **Moment at any point x:** M(x) = (wL/2)x - wx²/2
-- **Support Reactions:** R = wL / 2 (equal at both supports)
-- **Maximum Shear:** V_max = wL / 2 (at supports)
+- Maximum Moment: M_max = wL² / 8 (at x = L/2)
+- Moment at any point x: M(x) = (wL/2)x - wx²/2
+- Support Reactions: R = wL / 2 (equal at both supports)
+- Maximum Shear: V_max = wL / 2 (at supports)
 
 Where:
-
 - w = uniformly distributed load intensity
 - L = beam length
 - x = distance from left support
-  """)
+""")
 
 # Additional info
-
-with st.expander("ℹ️ How to use this calculator"):
+with st.expander("How to use this calculator"):
     st.markdown("""
     1. Select your preferred unit system in the sidebar
     2. Enter the beam length (L)
@@ -248,8 +218,7 @@ with st.expander("ℹ️ How to use this calculator"):
     5. Review the beam diagram, moment diagram, and data table
     6. Use the formula reference section to verify calculations
 
-    ```
-    **Note:** This calculator assumes:
+    Note: This calculator assumes:
     - Linear elastic behavior
     - Small deflections
     - Homogeneous material
